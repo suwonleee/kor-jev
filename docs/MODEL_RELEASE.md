@@ -4,7 +4,7 @@ GitHub 저장소는 실행 코드, 같은 저장소의 GitHub Releases는 한국
 
 ## 현재 상태
 
-실행 코드와 설치·빌드·모델 없는 API 검증은 준비됐습니다. `src/kor_jev/release.json`의 `published`가 false인 동안 한국어 모델의 공개 다운로드는 제공되지 않습니다. 다른 모델로 대체하지 않고 명시적으로 실패합니다.
+`ko-v7-preview`를 [GitHub Releases](https://github.com/suwonleee/kor-jev/releases/tag/ko-v7-preview)에 공개했습니다. `src/kor_jev/release.json`에 파일별 다운로드 URL·크기·SHA256을 기록했습니다. 사용자는 GitHub 또는 Hugging Face 로그인 없이 다운로드할 수 있습니다.
 
 ## 게시
 

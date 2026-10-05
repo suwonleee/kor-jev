@@ -1,9 +1,66 @@
 {
   "version": "ko-v7",
   "provider": "github",
-  "published": false,
+  "published": true,
   "repository": "suwonleee/kor-jev",
   "tag": "ko-v7-preview",
-  "source_commit": null,
-  "files": {}
+  "source_commit": "901c710331395b8d5e27fc657ffe38b6300a37d8",
+  "release_id": 404152441,
+  "files": {
+    "model.safetensors": {
+      "size": 1706027688,
+      "sha256": "01e0daa008189c579925e96fefe38db0c0dd1f010a33a01fbb4d8847c163e4da",
+      "url": "https://github.com/suwonleee/kor-jev/releases/download/ko-v7-preview/model.safetensors"
+    },
+    "tokenizer_config.json": {
+      "size": 1268,
+      "sha256": "188cf0b9db5cfd6e92f1b63c646f5975be6f8383c6c9a2fa5dc2b48a8b229402",
+      "url": "https://github.com/suwonleee/kor-jev/releases/download/ko-v7-preview/tokenizer_config.json"
+    },
+    "config.json": {
+      "size": 2692,
+      "sha256": "e430598ca8aa6228b9856573dcc0425d0710acad4a19a937da52cde724b34f25",
+      "url": "https://github.com/suwonleee/kor-jev/releases/download/ko-v7-preview/config.json"
+    },
+    "tokenizer.json": {
+      "size": 19989492,
+      "sha256": "6f32ce20dc35f57a7f9ad1eac03525bd7d30f9df8cea6507e958279cc3657706",
+      "url": "https://github.com/suwonleee/kor-jev/releases/download/ko-v7-preview/tokenizer.json"
+    },
+    "processor_config.json": {
+      "size": 1218,
+      "sha256": "abb488b9a03a53407dc9c8e43c0a2caec9142e5fc7a1203807fdf54b2149cc8f",
+      "url": "https://github.com/suwonleee/kor-jev/releases/download/ko-v7-preview/processor_config.json"
+    },
+    "chat_template.jinja": {
+      "size": 7755,
+      "sha256": "273d8e0e683b885071fb17e08d71e5f2a5ddfb5309756181681de4f5a1822d80",
+      "url": "https://github.com/suwonleee/kor-jev/releases/download/ko-v7-preview/chat_template.jinja"
+    },
+    "readout.safetensors": {
+      "size": 522320,
+      "sha256": "e78b7aeaaf81e36cca4401eee49785f7cb88a4ef54befa953b0904446bd5d422",
+      "url": "https://github.com/suwonleee/kor-jev/releases/download/ko-v7-preview/readout.safetensors"
+    },
+    "decision_config.json": {
+      "size": 16846,
+      "sha256": "ab5b904b5a7610245621646bf3e44e4848bff8155ab21bfc255844cbf5b66738",
+      "url": "https://github.com/suwonleee/kor-jev/releases/download/ko-v7-preview/decision_config.json"
+    },
+    "README.md": {
+      "size": 2944,
+      "sha256": "055bd540df76e4f30747242de7a4b8a5805854fdd1b94edc482e562d64697a11",
+      "url": "https://github.com/suwonleee/kor-jev/releases/download/ko-v7-preview/README.md"
+    },
+    "LICENSE": {
+      "size": 11358,
+      "sha256": "cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30",
+      "url": "https://github.com/suwonleee/kor-jev/releases/download/ko-v7-preview/LICENSE"
+    },
+    "NOTICE": {
+      "size": 536,
+      "sha256": "6c6b4e722afe992cad4f349d6a083ef770eef68e9c7ef67a9fc7cbb8611f9975",
+      "url": "https://github.com/suwonleee/kor-jev/releases/download/ko-v7-preview/NOTICE"
+    }
+  }
 }
