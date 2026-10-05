@@ -1,0 +1,7 @@
+kor-jev ko-v7 is derived from mstrasser/Jeff-Qwen3.5-0.8B and Qwen/Qwen3.5-0.8B.
+Original model repositories: https://huggingface.co/mstrasser/Jeff-Qwen3.5-0.8B and https://huggingface.co/Qwen/Qwen3.5-0.8B
+Base model weights are licensed under Apache License 2.0.
+Jeff code copyright (c) 2026 Mathias Strasser.
+AutoJev code copyright (c) 2026 Denis Yarats.
+The original code copyright and MIT permission notices are retained in the GitHub repository LICENSE.
+This independent project is not affiliated with or endorsed by TypeSafe/Jev.

@@ -6,7 +6,7 @@
 
 문의 분류, 작업 경로 선택, 문서 조건 확인처럼 **정해진 후보 사이에서 판단하는 기능**에 사용할 수 있습니다. 자유로운 대화나 긴 답변 생성은 이 프로젝트의 평가 대상이 아닙니다.
 
-> 현재 상태: 실험용 한국어 체크포인트 `ko-v7`. 이 공개 저장소는 소개와 평가 자료를 제공합니다. 실행 소스와 한국어 가중치의 공개 다운로드는 아직 제공하지 않습니다. 아래 실행 예제는 실행 소스와 해당 체크포인트를 보유한 경우를 기준으로 합니다.
+> 현재 상태: 실험용 한국어 체크포인트 `ko-v7`. 실행 코드는 공개했습니다. 한국어 가중치 업로드는 준비 중이므로 아직 클론만으로 모델을 사용할 수 없습니다. 아래의 자동 다운로드 명령은 가중치 공개 후 사용할 수 있습니다. 기존 체크포인트 보유자는 지금 실행할 수 있습니다.
 
 [실행 방법](#실행-방법) · [요청 예제](#요청-예제) · [평가 결과](#평가-결과) · [학습 요약](#학습-요약) · [라이선스](#라이선스와-출처)
 
@@ -24,41 +24,49 @@
 
 ## 실행 방법
 
-Python 3.12 이상과 [uv](https://docs.astral.sh/uv/getting-started/installation/)가 필요합니다. 체크포인트 디렉터리에는 가중치와 `decision_config.json` 등 저장된 모델 파일이 있어야 합니다. 원본 Jeff 가중치를 사용하면 원본 Jeff가 실행되며, 이 문서의 한국어 추가 학습 성능과는 구분해야 합니다.
+Python 3.12 이상과 [uv](https://docs.astral.sh/uv/getting-started/installation/)가 필요합니다. GitHub에서 실행 코드를 받고, 가중치는 별도 다운로드합니다. 최초 설치·모델 다운로드에는 인터넷이 필요하며 추론은 로컬에서 실행합니다.
 
-### Apple Silicon · MLX
-
-`pyproject.toml`이 있는 실행 소스 디렉터리에서 실행합니다. 이 소개 저장소만 내려받으면 서버를 실행할 수 없습니다. `KORJEV_CHECKPOINT`를 실제 한국어 체크포인트 경로로 바꾸세요.
+### 1. 실행 코드 설치
 
 ```bash
+git clone https://github.com/suwonleee/kor-jev.git
+cd kor-jev
 uv sync --extra mac
-export KORJEV_CHECKPOINT="/path/to/ko-v7/selected"
-
-JEFF_BACKEND=mlx \
-JEFF_CHECKPOINT="$KORJEV_CHECKPOINT" \
-JEFF_ANY_MODEL=1 \
-JEFF_HOST=127.0.0.1 PORT=8765 \
-uv run jeff-serve
 ```
 
-서버가 준비되면 [로컬 플레이그라운드](http://127.0.0.1:8765)에서 입력을 바꿔 볼 수 있습니다. 현재 MLX 경로는 텍스트 입력용입니다.
+`--extra mac`은 Apple Silicon용 MLX 의존성을 설치합니다. CPU 또는 CUDA 환경에서는 `uv sync`를 사용합니다.
 
-### PyTorch · CPU 또는 CUDA
+### 2. 한국어 가중치 다운로드 · 공개 후
 
 ```bash
-uv sync
-export KORJEV_CHECKPOINT="/path/to/ko-v7/selected"
-
-JEFF_BACKEND=pytorch JEFF_DEVICE=cpu \
-JEFF_CHECKPOINT="$KORJEV_CHECKPOINT" \
-JEFF_ANY_MODEL=1 \
-JEFF_HOST=127.0.0.1 PORT=8765 \
-uv run jeff-serve
+uv run kor-jev fetch
 ```
 
-CUDA 환경에서는 `JEFF_DEVICE=cuda`로 지정합니다. CUDA 경로의 성능은 아직 측정하지 않았습니다.
+공개 모델의 고정된 버전을 다운로드하고 파일별 SHA256을 검증합니다. **현재는 가중치 업로드가 끝나지 않아 이 명령이 공개 대기 안내와 함께 종료됩니다.** 모델 다운로드가 없는 상태에서 원본 Jeff나 다른 모델을 한국어 모델로 대신 실행하지 않습니다.
 
-실행 명령과 환경변수의 `jeff` 이름은 기반 프로젝트의 인터페이스를 유지한 것입니다. `JEFF_ANY_MODEL=1`은 요청의 `model` 이름을 허용하며, 실제 가중치는 `JEFF_CHECKPOINT`로 결정됩니다. 응답의 모델 이름은 서버가 로드한 기반 모델을 표시합니다.
+기존 ko-v7 체크포인트가 있다면 다운로드 없이 다음처럼 실행할 수 있습니다.
+
+```bash
+uv run kor-jev serve --checkpoint /path/to/ko-v7/selected --backend mlx
+```
+
+### 3. 로컬 서버 실행 · 다운로드 완료 후
+
+```bash
+uv run kor-jev serve --backend mlx
+```
+
+CPU 환경에서는 다음을 사용합니다.
+
+```bash
+uv run kor-jev serve --backend pytorch --device cpu
+```
+
+CUDA 환경에서는 `--device cuda`를 지정합니다. CUDA 경로의 성능은 아직 측정하지 않았습니다. 기본 주소는 `http://127.0.0.1:8765`이며, [로컬 플레이그라운드](http://127.0.0.1:8765)에서 입력을 바꿔 볼 수 있습니다. 현재 MLX 경로는 텍스트 입력용입니다.
+
+이 모델은 판정용 readout과 확률 보정 설정을 사용하는 전용 체크포인트입니다. 일반적인 대화용 모델 로더나 Ollama에 그대로 넣는 대신 이 저장소의 실행 명령을 사용하세요. `jeff-serve` 명령과 `JEFF_*` 환경변수도 기존 인터페이스 호환을 위해 유지합니다.
+
+가중치 공개 작업은 [배포 절차](docs/MODEL_RELEASE.md)에 정리했습니다.
 
 ## 요청 예제
 
