@@ -1,0 +1,421 @@
+{
+  "schema_version": 1,
+  "measured_on": "2026-10-05",
+  "candidate": "ko-v7",
+  "status": "experimental_not_adopted",
+  "scope": "Derived evaluation summary. Full local prediction artifacts are not distributed in this repository. Upstream latest releases and commercial Jev are not evaluated here.",
+  "training": {
+    "rows": 29251,
+    "epochs": 1,
+    "steps": 115,
+    "trainable_parameters": 853247040,
+    "selection": "minimum development raw NLL",
+    "calibration_rows": 1163,
+    "temperature": 0.9728202031484768
+  },
+  "definitions": {
+    "accuracy": "Fraction in [0,1]; classification means are unweighted means across suites.",
+    "golden_pass_rate": "Development set with mixed task-specific pass conditions; not independent classification accuracy.",
+    "sts_score_mae": "Mean absolute error in original 0–5 STS score units.",
+    "fresh_score_normalized_mae": "Raw mean absolute error divided by score range 4.",
+    "ece": "Suite ECE averaged across 11 Korean classification suites.",
+    "latency": "Local HTTP wall time including tokenization, inference, response transport; batch size 1; 5 warmup requests; startup excluded.",
+    "sampled_peak_rss_bytes": "Sampled process RSS only. Not total unified/GPU memory or a minimum system requirement."
+  },
+  "mlx_public_evaluation": {
+    "backend": "mlx",
+    "suite_count": 15,
+    "rows": 4700,
+    "korean_classification_suites": 11,
+    "english_classification_suites": 3,
+    "models": {
+      "original": {
+        "korean_macro_accuracy": 0.6527878787878788,
+        "english_macro_accuracy": 0.8688888888888888,
+        "korean_mean_ece": 0.12962290009452063,
+        "golden_count": 184,
+        "golden_pass_count": 152,
+        "golden_pass_rate": 0.8260869565217391,
+        "sts_score_mae": 0.7899694045908928,
+        "suites": {
+          "ko_ynat": {
+            "n": 300,
+            "acc": 0.5233333333333333,
+            "ece": 0.22937379101314082,
+            "nll": 1.4981086194802198,
+            "acc_ci95": [
+              0.46687729355961566,
+              0.5791993463738232
+            ]
+          },
+          "ko_nli": {
+            "n": 300,
+            "acc": 0.7433333333333333,
+            "ece": 0.07555581168223166,
+            "nll": 0.6181635475441883,
+            "acc_ci95": [
+              0.6910460832802706,
+              0.7894674474541646
+            ]
+          },
+          "ko_sts": {
+            "n": 300,
+            "acc": 0.8533333333333334,
+            "ece": 0.03126796562709033,
+            "nll": 0.3576652980155389,
+            "acc_ci95": [
+              0.8088365903800316,
+              0.888895385754902
+            ]
+          },
+          "ko_sts_score": {
+            "n": 300,
+            "mae": 0.7899694045908928,
+            "within1": 0.6466666666666666
+          },
+          "ko_nsmc": {
+            "n": 300,
+            "acc": 0.7633333333333333,
+            "ece": 0.13377001094323265,
+            "nll": 0.5894494145782881,
+            "acc_ci95": [
+              0.712095744869948,
+              0.8079120486645778
+            ]
+          },
+          "ko_boolq": {
+            "n": 300,
+            "acc": 0.87,
+            "ece": 0.05229827909774823,
+            "nll": 0.35460073631131706,
+            "acc_ci95": [
+              0.8272186992368379,
+              0.9034251625648376
+            ]
+          },
+          "ko_copa": {
+            "n": 300,
+            "acc": 0.79,
+            "ece": 0.049931885831825326,
+            "nll": 0.45196240571539437,
+            "acc_ci95": [
+              0.7403879054849664,
+              0.832278905116347
+            ]
+          },
+          "ko_hellaswag": {
+            "n": 300,
+            "acc": 0.36,
+            "ece": 0.21225434984013913,
+            "nll": 1.6816732613196763,
+            "acc_ci95": [
+              0.3077684186012506,
+              0.4157717417981154
+            ]
+          },
+          "ko_sentineg": {
+            "n": 300,
+            "acc": 0.92,
+            "ece": 0.044449224936662764,
+            "nll": 0.26251936896877937,
+            "acc_ci95": [
+              0.883725988586447,
+              0.9456535302154552
+            ]
+          },
+          "ko_wic": {
+            "n": 300,
+            "acc": 0.57,
+            "ece": 0.10293327766607846,
+            "nll": 0.7208844708598754,
+            "acc_ci95": [
+              0.5134401182890381,
+              0.6247898015112788
+            ]
+          },
+          "ko_hate": {
+            "n": 300,
+            "acc": 0.47333333333333333,
+            "ece": 0.21814925854696718,
+            "nll": 1.1775855175290602,
+            "acc_ci95": [
+              0.41752799159808596,
+              0.5298129913351266
+            ]
+          },
+          "ko_massive": {
+            "n": 500,
+            "acc": 0.314,
+            "ece": 0.2758680458546104,
+            "nll": 5.5973573527456795,
+            "acc_ci95": [
+              0.2748671671994545,
+              0.35596919089404155
+            ],
+            "acc_pos_le26": 0.6796536796536796,
+            "acc_pos_gt26": 0.0,
+            "n_pos_gt26": 269
+          },
+          "en_sst2": {
+            "n": 300,
+            "acc": 0.9,
+            "ece": 0.05050705547323674,
+            "nll": 0.3104302065173782,
+            "acc_ci95": [
+              0.8608327216490343,
+              0.9290525343527771
+            ]
+          },
+          "en_agnews": {
+            "n": 300,
+            "acc": 0.87,
+            "ece": 0.06651512120148807,
+            "nll": 0.41241220722188854,
+            "acc_ci95": [
+              0.8272186992368379,
+              0.9034251625648376
+            ]
+          },
+          "en_boolq": {
+            "n": 300,
+            "acc": 0.8366666666666667,
+            "ece": 0.06860237695710841,
+            "nll": 0.38902532722187944,
+            "acc_ci95": [
+              0.7906259121631731,
+              0.8741941783050182
+            ]
+          }
+        }
+      },
+      "ko-v7": {
+        "korean_macro_accuracy": 0.7732727272727273,
+        "english_macro_accuracy": 0.8744444444444444,
+        "korean_mean_ece": 0.0634113154938006,
+        "golden_count": 184,
+        "golden_pass_count": 166,
+        "golden_pass_rate": 0.9021739130434783,
+        "sts_score_mae": 0.6027334693337406,
+        "suites": {
+          "ko_ynat": {
+            "n": 300,
+            "acc": 0.7933333333333333,
+            "ece": 0.0703520218747327,
+            "nll": 0.6759222795895397,
+            "acc_ci95": [
+              0.7439440144288735,
+              0.8353051733057882
+            ]
+          },
+          "ko_nli": {
+            "n": 300,
+            "acc": 0.8533333333333334,
+            "ece": 0.04691156107087686,
+            "nll": 0.4692754105534022,
+            "acc_ci95": [
+              0.8088365903800316,
+              0.888895385754902
+            ]
+          },
+          "ko_sts": {
+            "n": 300,
+            "acc": 0.7833333333333333,
+            "ece": 0.049905980534236,
+            "nll": 0.4578643526239364,
+            "acc_ci95": [
+              0.7332891734257104,
+              0.826212882908906
+            ]
+          },
+          "ko_sts_score": {
+            "n": 300,
+            "mae": 0.6027334693337406,
+            "within1": 0.8233333333333334
+          },
+          "ko_nsmc": {
+            "n": 300,
+            "acc": 0.79,
+            "ece": 0.08788469485220046,
+            "nll": 0.4593651113943227,
+            "acc_ci95": [
+              0.7403879054849664,
+              0.832278905116347
+            ]
+          },
+          "ko_boolq": {
+            "n": 300,
+            "acc": 0.92,
+            "ece": 0.05848575268223663,
+            "nll": 0.26848466183977865,
+            "acc_ci95": [
+              0.883725988586447,
+              0.9456535302154552
+            ]
+          },
+          "ko_copa": {
+            "n": 300,
+            "acc": 0.7666666666666667,
+            "ece": 0.0451101112640365,
+            "nll": 0.46655095765906424,
+            "acc_ci95": [
+              0.7156176619060443,
+              0.8109725087618301
+            ]
+          },
+          "ko_hellaswag": {
+            "n": 300,
+            "acc": 0.7866666666666666,
+            "ece": 0.05798969927569552,
+            "nll": 0.6364572278708541,
+            "acc_ci95": [
+              0.7368363171534565,
+              0.8292481163145083
+            ]
+          },
+          "ko_sentineg": {
+            "n": 300,
+            "acc": 0.8866666666666667,
+            "ece": 0.059783439395402885,
+            "nll": 0.3390072112759478,
+            "acc_ci95": [
+              0.8457997619361538,
+              0.917755985532264
+            ]
+          },
+          "ko_wic": {
+            "n": 300,
+            "acc": 0.65,
+            "ece": 0.03908391249397307,
+            "nll": 0.6149256950637849,
+            "acc_ci95": [
+              0.594438067475952,
+              0.7017689035247274
+            ]
+          },
+          "ko_hate": {
+            "n": 300,
+            "acc": 0.49,
+            "ece": 0.14513391673604575,
+            "nll": 0.971555146362535,
+            "acc_ci95": [
+              0.43391603364256914,
+              0.5463368349573855
+            ]
+          },
+          "ko_massive": {
+            "n": 500,
+            "acc": 0.786,
+            "ece": 0.036883380252370195,
+            "nll": 0.9345318051485012,
+            "acc_ci95": [
+              0.7479411410548613,
+              0.819697577145462
+            ],
+            "acc_pos_le26": 0.8095238095238095,
+            "acc_pos_gt26": 0.7657992565055762,
+            "n_pos_gt26": 269
+          },
+          "en_sst2": {
+            "n": 300,
+            "acc": 0.9066666666666666,
+            "ece": 0.033058653109808434,
+            "nll": 0.27030937271286465,
+            "acc_ci95": [
+              0.8684138011961098,
+              0.9346362090723985
+            ]
+          },
+          "en_agnews": {
+            "n": 300,
+            "acc": 0.89,
+            "ece": 0.05507831106104953,
+            "nll": 0.35930772236233377,
+            "acc_ci95": [
+              0.8495429318702987,
+              0.9205951927314675
+            ]
+          },
+          "en_boolq": {
+            "n": 300,
+            "acc": 0.8266666666666667,
+            "ece": 0.05848870765809099,
+            "nll": 0.38005164400450436,
+            "acc_ci95": [
+              0.7797729263389721,
+              0.865300032729174
+            ]
+          }
+        }
+      }
+    }
+  },
+  "fresh_evaluation": {
+    "backend": "pytorch_cpu",
+    "domains": 16,
+    "scenarios": 240,
+    "requests_including_choice_variants": 480,
+    "choice_count": 120,
+    "noul_count": 60,
+    "score_count": 60,
+    "fixture": "tests/fixtures/generalization_ko_v7_final.jsonl",
+    "fixture_sha256": "0f691a363d2614bb757f4c9def9c864e3e14dcccad127ffe869ed1e50946c8f9",
+    "limitations": [
+      "Synthetic evaluation, not human-labelled operational data.",
+      "No demonstrated generalization improvement over original Jeff."
+    ],
+    "models": {
+      "original": {
+        "classification_correct": 162,
+        "classification_count": 180,
+        "classification_accuracy": 0.9,
+        "score_normalized_mae": 0.1757415853627511,
+        "score_raw_mae": 0.7029663414510045
+      },
+      "ko-v7": {
+        "classification_correct": 161,
+        "classification_count": 180,
+        "classification_accuracy": 0.8944444444444445,
+        "score_normalized_mae": 0.17996619892510352,
+        "score_raw_mae": 0.7198647957004141
+      }
+    }
+  },
+  "laptop_latency": {
+    "hardware": "Apple M4 Pro",
+    "system_memory_gb": 48,
+    "os": "macOS 26.3.1",
+    "backend": "mlx",
+    "checkpoint": "ko-v7",
+    "samples": {
+      "golden_184": {
+        "p50_ms": 38.89425002853386,
+        "p95_ms": 43.01849997136742,
+        "n": 184
+      },
+      "development_200": {
+        "p50_ms": 43.001479003578424,
+        "p95_ms": 149.32141598546878,
+        "n": 200
+      }
+    },
+    "sampled_peak_rss_bytes": 2250227712
+  },
+  "source_reports": [
+    {
+      "local_artifact": "runs/ko-v7/native-original.json",
+      "sha256": "a44916a62cf018ab765d06fdf687c7654b58ed0f65bfa472d8b5562f95fbba3d"
+    },
+    {
+      "local_artifact": "runs/ko-v7/native-selected.json",
+      "sha256": "7d52fa83806bce17cffbf667d2e11b22546d6c4cac7bc1ceded8b6c821aec5a7"
+    },
+    {
+      "local_artifact": "runs/ko-v7/final-original.json",
+      "sha256": "70e7024e7be313ca43db177dbaedc97d2ca6a799a6b02e52a026816fe014c28b"
+    },
+    {
+      "local_artifact": "runs/ko-v7/final-selected.json",
+      "sha256": "3d0a624bc4d25bfc5306ee3679627e16a5ad68f1f95a91906f50a179b89e2153"
+    }
+  ]
+}
