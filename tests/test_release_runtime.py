@@ -1,3 +1,4 @@
+import io
 import json
 import sys
 from pathlib import Path
@@ -22,50 +23,81 @@ def checkpoint(tmp_path):
 
 
 def manifest(checkpoint):
-    return {'published': True, 'repo_id': 'test/kor-jev', 'revision': 'b' * 40,
-            'files': {p.name: {'size': p.stat().st_size, 'sha256': cli.file_sha256(p)}
+    return {'published': True, 'provider': 'github', 'repository': 'test/kor-jev',
+            'tag': 'ko-v7-preview', 'source_commit': 'b' * 40,
+            'files': {p.name: {'size': p.stat().st_size, 'sha256': cli.file_sha256(p),
+                               'url': f'https://github.com/test/kor-jev/releases/download/ko-v7-preview/{p.name}'}
                       for p in checkpoint.iterdir()}}
 
 
+def fake_download(monkeypatch, checkpoint, corrupt=None):
+    calls = []
+    data = {p.name: p.read_bytes() for p in checkpoint.iterdir()}
+    def open_url(request, **kwargs):
+        calls.append(request)
+        name = request.full_url.rsplit('/', 1)[-1]
+        return io.BytesIO(b'corrupt' if name == corrupt else data[name])
+    monkeypatch.setattr(cli.urllib.request, 'urlopen', open_url)
+    return calls
+
+
 def test_unpublished_model_never_downloads(monkeypatch, tmp_path):
-    monkeypatch.setitem(sys.modules, 'huggingface_hub', SimpleNamespace(
-        snapshot_download=lambda **kw: pytest.fail('Must not download an unrelated model')))
+    monkeypatch.setattr(cli.urllib.request, 'urlopen',
+                        lambda *a, **kw: pytest.fail('Must not download an unrelated model'))
     with pytest.raises(ValueError, match='아직 공개되지'):
         cli.fetch_checkpoint(tmp_path, {'published': False})
 
 
-def test_fetch_is_anonymous_pinned_and_checks_files(monkeypatch, checkpoint):
-    calls = []
-    monkeypatch.setitem(sys.modules, 'huggingface_hub', SimpleNamespace(
-        snapshot_download=lambda **kw: calls.append(kw)))
-    assert cli.fetch_checkpoint(checkpoint, manifest(checkpoint)) == checkpoint
-    assert calls[0]['token'] is False
-    assert calls[0]['revision'] == 'b' * 40
-    assert set(calls[0]['allow_patterns']) == set(p.name for p in checkpoint.iterdir())
-
-
-def test_corrupt_download_is_rejected(monkeypatch, checkpoint):
+def test_github_download_is_anonymous_and_checks_files(monkeypatch, checkpoint):
     release = manifest(checkpoint)
-    monkeypatch.setitem(sys.modules, 'huggingface_hub', SimpleNamespace(
-        snapshot_download=lambda **kw: (checkpoint / 'readout.safetensors').write_text('corrupt')))
+    calls = fake_download(monkeypatch, checkpoint)
+    destination = checkpoint / 'downloaded'
+    assert cli.fetch_checkpoint(destination, release) == destination
+    assert len(calls) == len(release['files'])
+    assert all(call.get_header('Authorization') is None for call in calls)
+    assert all('/releases/download/ko-v7-preview/' in call.full_url for call in calls)
+    assert (destination / 'model.safetensors').read_bytes() == (checkpoint / 'model.safetensors').read_bytes()
+
+
+def test_verified_checkpoint_works_offline(monkeypatch, checkpoint):
+    release = manifest(checkpoint)
+    monkeypatch.setattr(cli.urllib.request, 'urlopen',
+                        lambda *a, **kw: pytest.fail('Verified local files must need no network'))
+    assert cli.fetch_checkpoint(checkpoint, release) == checkpoint
+
+
+def test_corrupt_download_is_rejected_and_temporary_file_removed(monkeypatch, checkpoint):
+    release = manifest(checkpoint)
+    fake_download(monkeypatch, checkpoint, corrupt='readout.safetensors')
+    destination = checkpoint / 'downloaded'
     with pytest.raises(ValueError, match='integrity check failed'):
-        cli.fetch_checkpoint(checkpoint, release)
+        cli.fetch_checkpoint(destination, release)
+    assert not (destination / 'readout.safetensors').exists()
+    assert not list(destination.glob('*.download'))
 
 
-@pytest.mark.parametrize('revision', ['main', None, 'a' * 39])
-def test_mutable_or_missing_hub_revision_rejected(checkpoint, revision):
+@pytest.mark.parametrize('field,value', [('source_commit', None), ('source_commit', 'a' * 39),
+                                        ('tag', ''), ('repository', 'invalid')])
+def test_invalid_github_release_identity_rejected(checkpoint, field, value):
     release = manifest(checkpoint)
-    release['revision'] = revision
-    with pytest.raises(ValueError, match='immutable Hub revision'):
+    release[field] = value
+    with pytest.raises(ValueError, match='Invalid'):
         cli.fetch_checkpoint(checkpoint, release)
 
 
 def test_manifest_path_traversal_rejected_before_download(monkeypatch, checkpoint):
     release = manifest(checkpoint)
     release['files']['../token'] = {'sha256': '0' * 64, 'size': 1}
-    monkeypatch.setitem(sys.modules, 'huggingface_hub', SimpleNamespace(
-        snapshot_download=lambda **kw: pytest.fail('Invalid manifest must not reach the Hub')))
+    monkeypatch.setattr(cli.urllib.request, 'urlopen',
+                        lambda *a, **kw: pytest.fail('Invalid manifest must not reach GitHub'))
     with pytest.raises(ValueError, match='flat'):
+        cli.fetch_checkpoint(checkpoint, release)
+
+
+def test_foreign_download_host_rejected(checkpoint):
+    release = manifest(checkpoint)
+    release['files']['model.safetensors']['url'] = 'https://example.com/weights'
+    with pytest.raises(ValueError, match='asset URL'):
         cli.fetch_checkpoint(checkpoint, release)
 
 
@@ -130,14 +162,45 @@ def test_publish_dry_run_excludes_optimizer_and_training_state(monkeypatch, chec
     (checkpoint / 'resume.pt').write_text('optimizer must remain local')
     (checkpoint / 'private-training.json').write_text('training metadata must remain local')
     monkeypatch.setattr(sys, 'argv', ['publish_model', '--checkpoint', str(checkpoint), '--dry-run'])
-    monkeypatch.setitem(sys.modules, 'huggingface_hub', SimpleNamespace(
-        HfApi=lambda: pytest.fail('Dry run must not access credentials or upload')))
+    monkeypatch.setattr(module, 'gh', lambda *a, **kw: pytest.fail('Dry run must not contact GitHub'))
     module.main()
     output = json.loads(capsys.readouterr().out)
     assert 'model.safetensors' in output['files']
     assert {'LICENSE', 'NOTICE', 'README.md'}.issubset(output['files'])
     assert 'resume.pt' not in output['files']
     assert 'private-training.json' not in output['files']
+
+
+def test_github_asset_digest_mismatch_rejected():
+    import importlib.util
+    script = Path(__file__).resolve().parents[1] / 'scripts/publish_model.py'
+    spec = importlib.util.spec_from_file_location('publish_model', script)
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    with pytest.raises(ValueError, match='digest verification failed'):
+        module.check_assets([{'name': 'model.safetensors', 'size': 10, 'digest': 'sha256:' + '0' * 64}],
+                            {'model.safetensors': {'size': 10, 'sha256': '1' * 64}})
+
+
+def test_published_release_never_overwritten(monkeypatch, checkpoint):
+    import importlib.util
+    script = Path(__file__).resolve().parents[1] / 'scripts/publish_model.py'
+    spec = importlib.util.spec_from_file_location('publish_model', script)
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    monkeypatch.setattr(sys, 'argv', ['publish_model', '--checkpoint', str(checkpoint)])
+    monkeypatch.setattr(module.subprocess, 'run', lambda *a, **kw: SimpleNamespace(stdout='b' * 40))
+    calls = []
+    def github(*args, **kwargs):
+        calls.append(args)
+        assert args[:2] == ('release', 'view'), 'An existing public release must only be read'
+        return SimpleNamespace(returncode=0, stdout=json.dumps(
+            {'isDraft': False, 'databaseId': 1, 'targetCommitish': 'b' * 40}))
+    monkeypatch.setattr(module, 'gh', github)
+    with pytest.raises(SystemExit) as error:
+        module.main()
+    assert error.value.code == 1
+    assert len(calls) == 1
 
 
 def test_api_serializes_three_types_without_loading_weights(monkeypatch):

@@ -7,6 +7,8 @@ import math
 import os
 import platform
 import re
+import urllib.error
+import urllib.request
 from importlib.resources import files
 from pathlib import Path
 
@@ -58,8 +60,14 @@ def fetch_checkpoint(directory: Path, release: dict | None = None) -> Path:
     release = release_info() if release is None else release
     if not release.get('published'):
         raise ValueError('한국어 가중치가 아직 공개되지 않았습니다. 기존 가중치가 있으면 serve --checkpoint 경로를 지정하세요.')
-    if not release.get('repo_id') or not re.fullmatch(r'[0-9a-f]{40}', str(release.get('revision', ''))):
-        raise ValueError('Invalid model release: immutable Hub revision required.')
+    if release.get('provider') != 'github':
+        raise ValueError('This runtime downloads Korean weights from GitHub Releases.')
+    repository = str(release.get('repository', ''))
+    tag = str(release.get('tag', ''))
+    if not re.fullmatch(r'[A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+', repository) or not re.fullmatch(r'[A-Za-z0-9][A-Za-z0-9._-]{0,79}', tag):
+        raise ValueError('Invalid GitHub release repository or version tag.')
+    if not re.fullmatch(r'[0-9a-f]{40}', str(release.get('source_commit', ''))):
+        raise ValueError('Invalid model release: source commit required.')
     expected = release.get('files', {})
     if not all(name in expected for name in REQUIRED_FILES):
         raise ValueError('Invalid model release: required file checksums missing.')
@@ -70,14 +78,30 @@ def fetch_checkpoint(directory: Path, release: dict | None = None) -> Path:
             raise ValueError('Model release filenames must be flat.')
         if not re.fullmatch(r'[0-9a-f]{64}', str(metadata.get('sha256', ''))) or not isinstance(metadata.get('size'), int) or metadata['size'] <= 0:
             raise ValueError(f'Invalid model release checksum or size: {name}')
-    from huggingface_hub import snapshot_download
-
-    snapshot_download(repo_id=release['repo_id'], revision=release['revision'],
-                      local_dir=str(directory), allow_patterns=list(expected), token=False)
+        expected_url = f'https://github.com/{repository}/releases/download/{tag}/{name}'
+        if metadata.get('url') != expected_url:
+            raise ValueError(f'Invalid GitHub release asset URL: {name}')
+    directory.mkdir(parents=True, exist_ok=True)
     for name, metadata in expected.items():
         path = directory / name
-        if not path.is_file() or path.stat().st_size != metadata['size'] or file_sha256(path) != metadata['sha256']:
-            raise ValueError(f'Model file integrity check failed: {name}')
+        if path.is_file() and path.stat().st_size == metadata['size'] and file_sha256(path) == metadata['sha256']:
+            continue  # An already verified checkpoint works without network access.
+        temporary = directory / f'.{name}.download'
+        digest, count = hashlib.sha256(), 0
+        try:
+            request = urllib.request.Request(metadata['url'], headers={'User-Agent': 'kor-jev/0.1'})
+            with urllib.request.urlopen(request, timeout=120) as response, temporary.open('wb') as stream:
+                for chunk in iter(lambda: response.read(8 * 1024 * 1024), b''):
+                    count += len(chunk)
+                    if count > metadata['size']:
+                        raise ValueError(f'Model file exceeds expected size: {name}')
+                    digest.update(chunk)
+                    stream.write(chunk)
+            if count != metadata['size'] or digest.hexdigest() != metadata['sha256']:
+                raise ValueError(f'Model file integrity check failed: {name}')
+            temporary.replace(path)
+        finally:
+            temporary.unlink(missing_ok=True)
     validate_checkpoint(directory)
     return directory
 
@@ -115,7 +139,7 @@ def main(argv: list[str] | None = None) -> None:
             os.environ['JEFF_DEVICE'] = args.device
         from jeff.server import main as serve_main
         serve_main()
-    except (ValueError, OSError, json.JSONDecodeError) as error:
+    except (ValueError, OSError, urllib.error.URLError, json.JSONDecodeError) as error:
         parser.exit(1, f'kor-jev: {error}\n')
 
 

@@ -39,6 +39,6 @@ Choice, Noul, Score를 Jev/System One 형식으로 제공합니다. MLX는 Apple
 
 ## 출처와 라이선스
 
-기반 가중치는 Jeff-Qwen3.5-0.8B 및 Qwen3.5-0.8B입니다. 가중치는 Apache 2.0이며 코드의 MIT 라이선스와 구분합니다. NOTICE와 LICENSE를 함께 보존하세요. 학습 데이터는 배포하지 않으며, 각 데이터의 별도 라이선스는 [데이터 출처](https://github.com/suwonleee/kor-jev/blob/main/docs/ko-data-sources.md)에 정리했습니다.
+기반 가중치는 Jeff-Qwen3.5-0.8B 및 Qwen3.5-0.8B입니다. 가중치는 GitHub Releases에서 배포하며 Apache 2.0입니다. 코드의 MIT 라이선스와 구분합니다. NOTICE와 LICENSE를 함께 보존하세요. 학습 데이터는 배포하지 않으며, 각 데이터의 별도 라이선스는 [데이터 출처](https://github.com/suwonleee/kor-jev/blob/main/docs/ko-data-sources.md)에 정리했습니다.
 
 독립 프로젝트로 TypeSafe/Jev의 공식 모델이거나 승인·보증을 받은 모델이 아닙니다. 전체 지표 정의와 원자료 해시는 [평가 요약](https://github.com/suwonleee/kor-jev/blob/main/docs/benchmarks/ko-v7-summary.json)을 참고하세요.

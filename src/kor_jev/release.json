@@ -1,7 +1,9 @@
 {
   "version": "ko-v7",
+  "provider": "github",
   "published": false,
-  "repo_id": null,
-  "revision": null,
+  "repository": "suwonleee/kor-jev",
+  "tag": "ko-v7-preview",
+  "source_commit": null,
   "files": {}
 }
